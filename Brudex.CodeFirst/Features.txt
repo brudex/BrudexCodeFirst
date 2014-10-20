@@ -1,0 +1,13 @@
+﻿Dcf<TEntity>.Migrate().AutoSeed() /-- ability to auto generate rows
+Dcf<TEntity>.Migrate().Seed(List<TEntity>) // ability to generate rows based on specified collections
+Dcf<TEntity>.Migrate().NoPrimaryKey(disableautoincrement:true).AutoSeed();// generate model without primary key
+Dcf<TEntity>.Migrate().SetPrimaryKey("Id",autoincrement:false).AutoSeed();// set different field as primary key
+Dcf<TEntity>.Migrate().DisableAutoIncrementID().AutoSeed();// Disable auto increment on a field being migrated
+Dcf<TEntity>.Migrate().IgnoreFieds(List<string>).AutoSeed(); //Ignore fields when auto migrating
+Dcf<TEntity>.Migrate().CreateForeignKeyOn(x=>x.FieldName,string toTable).AutoSeed() //
+Dcf<TEntity>.Migrate().CreateForeignKeyOn(x=>x.FieldName,f=>f<EntityName>).AutoSeed() //
+Dcf<TEntity>.Migrate().IgnoreFields(List<string>).AutoSeed()
+Dcf<TEntity>.Migrate().IgnoreField(List<string>).AutoSeed()
+
+possibly 
+Dcf<TEntity>.Migrate(noprimarykey:true,autoincrementId:false).AutoSeed() 

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExploringTypes", "ExploringTypes\ExploringTypes.csproj", "{BAB3EC39-614F-4064-95DE-20096EC89C99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brudex.CodeFirst", "Brudex.CodeFirst\Brudex.CodeFirst.csproj", "{761E8C33-B3A0-47AD-A09C-962D4BDADE8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brudex.CodeFirst.Tests", "Brudex.CodeFirst.Tests\Brudex.CodeFirst.Tests.csproj", "{C69658AA-E94A-4552-A146-966E0D185B7E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BAB3EC39-614F-4064-95DE-20096EC89C99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAB3EC39-614F-4064-95DE-20096EC89C99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAB3EC39-614F-4064-95DE-20096EC89C99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAB3EC39-614F-4064-95DE-20096EC89C99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{761E8C33-B3A0-47AD-A09C-962D4BDADE8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{761E8C33-B3A0-47AD-A09C-962D4BDADE8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{761E8C33-B3A0-47AD-A09C-962D4BDADE8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{761E8C33-B3A0-47AD-A09C-962D4BDADE8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C69658AA-E94A-4552-A146-966E0D185B7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69658AA-E94A-4552-A146-966E0D185B7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69658AA-E94A-4552-A146-966E0D185B7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69658AA-E94A-4552-A146-966E0D185B7E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
