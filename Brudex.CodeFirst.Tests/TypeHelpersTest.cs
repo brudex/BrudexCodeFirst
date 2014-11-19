@@ -34,7 +34,7 @@ namespace Brudex.CodeFirst.Tests
         [Test]
         public void GetValueTest()
         {
-            Director actor = new Director() { FirstName = "Martin", LastName = "Fowler", Id = "1" };
+            Director actor = new Director() { FirstName = "Martin", LastName = "Fowler", Id = 1 };
             var members = TypeHelpers.GetMembers<Director>();
             var mv = members.First(x => x.Name == "FirstName");
             var v = mv.GetValue(actor);
@@ -44,7 +44,7 @@ namespace Brudex.CodeFirst.Tests
         [Test]
         public void GetTypeValuesTest()
         {
-            Director actor = new Director() { FirstName = "Martin", LastName = "Fowler", Id ="1" };
+            Director actor = new Director() { FirstName = "Martin", LastName = "Fowler", Id =1};
              var dict = TypeHelpers.GetTypeValues(actor);
              Assert.AreEqual(dict["FirstName"].FieldValue,"Martin");
              Assert.AreEqual(dict["LastName"].FieldValue,"Fowler");

@@ -12,8 +12,8 @@ namespace Brudex.CodeFirst
 //        bool AutoIncrementId { get; set; }
 //        List<string> FiedsToIgnore { get; set; }
 //        bool NoPrimaryKey { get; set; }
+
         
-            
        IBaseMigrationActions<TEntity> IgnoreFields(List<string> fieldNames);
        IBaseMigrationActions<TEntity> SetPrimaryKey(string field, bool autoIncrement);
        IBaseMigrationActions<TEntity> SetPrimaryKey(Expression<Func<TEntity, object>> lambd, bool autoIncrement=true);

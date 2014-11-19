@@ -28,8 +28,9 @@ namespace Brudex.CodeFirst
                 {
                     IsPrimaryKey = string.Equals(columnMap.ColumnName, primary.ColumnName);
                 }
-                
+                 
                 sb.Append(GetColumnSqlSnippet(columnMap,IsPrimaryKey,autoincrement));
+                
             }
             
             var primarySql = "";
@@ -157,13 +158,13 @@ namespace Brudex.CodeFirst
                     }
 
                 }             
-            string sql = string.Format(@"INSERT INTO [dbo].[{0}] ({1})  VALUES  ({2}) \nGO", TableName, cellNames , cellValues );
+            string sql = string.Format(@"INSERT INTO [dbo].[{0}] ({1})  VALUES  ({2}) ; ", TableName, cellNames , cellValues );
             return sql;
         }
 
         public static string DropTable(string tableName)
         {
-            return string.Format(@"DROP TABLE [dbo].[{0}] ;",tableName);
+            return string.Format(@"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{0}') AND type in (N'U')) DROP TABLE {0};", tableName);           
         }
 
         public static string GetAlterStatement(List<ColumnMap> oldtableschema, List<ColumnMap> freshtableschema)
@@ -171,6 +172,7 @@ namespace Brudex.CodeFirst
             var removedColumns = new List<string>();
             var freshColumns = new List<ColumnMap>();
             var changedColumns = new List<ColumnMap>();
+
             Action getTableChanges = () =>
                 {
                     var newColumns =
@@ -201,8 +203,44 @@ namespace Brudex.CodeFirst
                     
                 };
             getTableChanges();
+            var tableName = freshtableschema.First().EnityTable;
+            StringBuilder sb=new StringBuilder();
 
-            return string.Empty; //TODO IMPLEMENT GET ALTER SQL STATEmENTS
+            sb.Append(DropColumns(tableName,removedColumns));
+            sb.Append(AddColumns(tableName,freshColumns));
+            sb.Append(AlterColumns(tableName,changedColumns));
+            return sb.ToString(); //TODO TEST THIS METHOD
+        }
+
+        private static StringBuilder DropColumns(string tableName,List<string> removedColumns)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var removedColumn in removedColumns)
+            {
+                sb.AppendLine(string.Format("ALTER TABLE {0} DROP COLUMN {1};", tableName, removedColumn));
+            }
+            return sb;
+        }
+
+
+        private static StringBuilder AlterColumns(string tableName, List<ColumnMap> columns)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var column in columns)
+            {
+                sb.AppendLine(string.Format("ALTER TABLE {0} ALTER COLUMN {1} {2};", tableName, column.ColumnName,column.GetSqlType()));
+            }
+            return sb;
+        } 
+        
+        private static StringBuilder AddColumns(string tableName,List<ColumnMap> addedColumns)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var column in addedColumns)
+            {
+                sb.AppendLine(string.Format("ALTER TABLE {0} ADD {1} {2};", tableName, column.ColumnName,column.GetSqlType()));
+            }
+            return sb;
         }
 
         public static string GetTableInformation(string tableName)
@@ -210,6 +248,13 @@ namespace Brudex.CodeFirst
             return
                 string.Format(@"select column_name,data_type from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{0}' ;",
                               tableName);
+        }
+
+        public static string GetTopInformationSchema()
+        {
+            return
+                string.Format(@"SELECT  TOP (5)  *  FROM  INFORMATION_SCHEMA.TABLES");
+            
         }
     }
 }

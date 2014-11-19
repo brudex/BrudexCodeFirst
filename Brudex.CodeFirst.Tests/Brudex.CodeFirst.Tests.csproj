@@ -44,10 +44,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseMigrationActionsTest.cs" />
+    <Compile Include="BaseMigrationSqlTest.cs" />
     <Compile Include="BrudexCodeFirstTest.cs" />
+    <Compile Include="ConnectionFactoryTest.cs" />
+    <Compile Include="ConnectionStrings.cs" />
     <Compile Include="DcfTest.cs" />
+    <Compile Include="BaseMigrationsTest.cs" />
     <Compile Include="NUnitTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeedTest.cs" />
     <Compile Include="TestingClasses.cs" />
     <Compile Include="TypeHelpersTest.cs" />
   </ItemGroup>

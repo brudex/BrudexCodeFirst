@@ -30,12 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper">
-      <HintPath>..\packages\Dapper.1.13\lib\net40\Dapper.dll</HintPath>
+    <Reference Include="MySql.Data, Version=6.6.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
+    <Reference Include="Npgsql">
+      <HintPath>..\packages\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,7 +51,7 @@
     <Compile Include="BrudexCodeFirst.cs" />
     <Compile Include="ConnectionFactory.cs" />
     <Compile Include="DataTypes.cs" />
-    <Compile Include="Dcf.cs" />
+    <Compile Include="Bcf.cs" />
     <Compile Include="EntityVariable.cs" />
     <Compile Include="ForeignKey.cs" />
     <Compile Include="IBaseMigrationActions.cs" />

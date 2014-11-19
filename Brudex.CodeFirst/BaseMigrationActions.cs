@@ -13,7 +13,7 @@ namespace Brudex.CodeFirst
         public bool AutoIncrementId { get; private set; }
         public List<string> FiedsToIgnore { get; private set; }
         public bool NoPrimaryKey { get; private set; }
-        public string TableName { get; private set; }
+        public string TableName { get;  private set; }
         public List<ColumnMap> Columns { get; private set; }
         public List<ColumnMap> _oldColumnsSchema { get; private set; }
         public List<ForeignKey> ForeignKeys { get; private set; }
@@ -34,34 +34,49 @@ namespace Brudex.CodeFirst
            SeedMappings = new List<Dictionary<string, EntityVariable>>();
        } 
 
+      public string GetTableName()
+      {
+          return TableName;
+      }
+
         public void Seed(List<TEntity> seeds)
         {
             HasSeeds = true;
             foreach (var seed in seeds)
             {
               var  seedMap = TypeHelpers.GetTypeValues(seed);
-                if (AutoIncrementId)
-                {
-                    ColumnMap c = Columns.FirstOrDefault(x => x.ColumnName == IdField);
-                    if (c != null)
-                    {
-                        if (c.FieldType == DataType.BigInteger || c.FieldType == DataType.Integer)
-                        {
-                            seedMap.Remove(c.ColumnName);
-                        }
-                    }
-                }
-                SeedMappings.Add(seedMap);
+                var s = SanitizeSeedMap(seedMap);
+                SeedMappings.Add(s);
             }           
         }
+
+
+      private Dictionary<string, EntityVariable> SanitizeSeedMap(Dictionary<string, EntityVariable> seedMap)
+      {
+          if (AutoIncrementId)
+          {
+              ColumnMap c = Columns.FirstOrDefault(x => x.ColumnName == IdField);
+              if (c != null)
+              {
+                  var IsAutoIncrementable = c.FieldType == DataType.BigInteger ||
+                                         c.FieldType == DataType.Integer || c.FieldType == DataType.Decimal ||
+                                         c.FieldType == DataType.Short;
+                  if (IsAutoIncrementable)
+                  {
+                      seedMap.Remove(c.ColumnName);
+                  }
+              }
+          }
+          return seedMap;
+      }
 
         public void AutoSeed(int seedCount=10)
         {
             HasSeeds = true;
             for (int i = 0; i < seedCount; i++)
             {
-                Dictionary<string, EntityVariable> seed = SeedMaker.CreateSeed(Columns,AutoIncrementId,IdField);
-                SeedMappings.Add(seed);
+                Dictionary<string, EntityVariable> seed = SeedMaker.CreateSeed(Columns);
+                SeedMappings.Add(SanitizeSeedMap(seed));
             }
         }
 
@@ -137,8 +152,8 @@ namespace Brudex.CodeFirst
             {
                 throw new ArgumentException(string.Format("'{0}' is ignored and cannot be made a key field. ", IdField));
             }
-
-            foreach (var columnMap in Columns)
+            var allcolumns = Columns.ToList();
+            foreach (var columnMap in allcolumns)
             {
                 if (FiedsToIgnore.Contains(columnMap.ColumnName))
                 {
@@ -148,17 +163,22 @@ namespace Brudex.CodeFirst
 
             bool createPrimaryKey = !NoPrimaryKey;
             string s=SqlHelper.GenerateSql(TableName,Columns,createPrimaryKey,IdField,AutoIncrementId);
-            return s;
+            StringBuilder sb=new StringBuilder(s);
+            if (ForeignKeys.Count > 0)
+            {
+                sb.AppendLine(GetForeignKeySql());
+            }
+            return sb.ToString();
         }
        
-      public string GetForeignKeySql()
+      private string GetForeignKeySql()
       {
           StringBuilder sb = new StringBuilder();
           sb.Append("");
           foreach (var foreignKey in ForeignKeys)
           {
               sb.Append(SqlHelper.GetPForeignKeySnippet(foreignKey));
-              sb.Append(";\n");
+              sb.Append(";");
           }
 
           return sb.ToString();
@@ -170,7 +190,7 @@ namespace Brudex.CodeFirst
            foreach (var seedMapping in SeedMappings)
            {
                string singleSeedSql = SqlHelper.GetSeedSql(seedMapping,Columns,TableName);
-               sb.Append(singleSeedSql);
+               sb.AppendLine(singleSeedSql);
            }
            return sb.ToString();
 
@@ -249,9 +269,7 @@ namespace Brudex.CodeFirst
           }
           return shemaChanged;
       }
-
-      
-
+       
 
       public bool IsFirstMigration(ConnectionFactory connection)
       {

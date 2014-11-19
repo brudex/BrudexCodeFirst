@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+
 
 namespace Brudex.CodeFirst
 {
     public class ConnectionFactory
     {
-        private Connection conn;
+        private IConnection conn;
         private string _conString;
 
         public ConnectionFactory(ConnectionType _connectionType, string conString)
         {
+            //TODO : When done for first release remove all connection types and leave only SqlServer
             _conString = conString;
             if (_connectionType == ConnectionType.Oracle)
             {
@@ -29,101 +33,201 @@ namespace Brudex.CodeFirst
             {
                 conn = new PostgresConnection();
             }
+            else
+            {
+                conn = new SqlServerConnection();
+            }
+
             conn._conString = _conString;
         }
 
-        public Connection CreateConnection(string conString)
-        {
-            return new OracleConnection();
-        }
+
 
         public void ExecuteCommand(string command)
         {
-           conn.ExecuteCommand(command);
+            conn.ExecuteCommand(command);
         }
 
         public List<ColumnMap> GetTableInformation(string tableName)
         {
             var command = SqlHelper.GetTableInformation(tableName);
-            var reader=conn.ExecuteReader(command);
+             
             var columns = new List<ColumnMap>();
-            while (reader.Read())
+            using (var reader = conn.ExecuteReader(command))
             {
-                var c = new ColumnMap();
-                c.EnityTable = tableName;
-                c.EnityName = tableName;
-                c.ColumnName = reader["column_name"].ToString();
-                c.SetFieldType(reader["data_type"].ToString());
-                columns.Add(c);
+                while (reader.Read())
+                {
+                    var c = new ColumnMap();
+                    c.EnityTable = tableName;
+                    c.EnityName = tableName;
+                    c.ColumnName = reader["column_name"].ToString();
+                    c.SetFieldType(reader["data_type"].ToString());
+                    columns.Add(c);
+                }
             }
-            reader.Close();
+            
             return columns;
         }
 
-        public bool IsFirstMigrations()
+        public bool IsFirstMigrations(List<string> tableNames)
         {
+            var sql = SqlHelper.GetTopInformationSchema();
+            var selectedTableNames = new List<string>();
+            using (var reader = conn.ExecuteReader(sql))
+            {
+                while (reader.Read())
+                {
+                    var c = reader["TABLE_NAME"].ToString();
+                    selectedTableNames.Add(c);
+                }
+            }
 
-            return false;
+            bool isFirst = true;
+            if (selectedTableNames.Count > 0)
+            {
+                foreach (var tableName in tableNames)
+                {
+                    if (selectedTableNames.Contains(tableName))
+                    {
+                        
+                        isFirst= false;
+                        break;
+                    }
+                }
+            }
+             
+            return isFirst ;
         }
     }
 
-    public abstract class Connection
+    internal interface IConnection
     {
-        public string _conString;
+        string _conString { get; set; }
+        void ExecuteCommand(string command);
+        IDataReader ExecuteReader(string command);
+
+    }
+
+
+    internal class OracleConnection : IConnection
+    {
+        public string _conString { get; set; }
+
         public void ExecuteCommand(string command)
         {
-            //return "Generic";
-        }
-
-        public SqlDataReader ExecuteReader(string command)
-        {
-            using (var connection = new SqlConnection(_conString))
+            using (var connection = new System.Data.OracleClient.OracleConnection(_conString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(command, connection);
-                var reader= cmd.ExecuteReader();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public IDataReader ExecuteReader(string command)
+        {
+            using (var connection = new System.Data.OracleClient.OracleConnection(_conString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                var reader = cmd.ExecuteReader();
                 connection.Close();
                 return reader;
             }
         }
 
-        public bool IsFirstMigrations()
+    }
+
+    internal class SqlServerConnection : IConnection
+    {
+        public string _conString { get; set; }
+
+        public void ExecuteCommand(string command)
         {
-            return false;
-            //return "Generic";
+            using (var connection = new SqlConnection(_conString))
+            {
+                connection.Open();
+                var cmd = new SqlCommand(command, connection);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public IDataReader ExecuteReader(string command)
+        {
+            var connection = new SqlConnection(_conString);
+            
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(command, connection);
+                var reader = cmd.ExecuteReader();
+                return reader;
+            
+        }
+
+
+    }
+
+
+    internal class MySqlConnection : IConnection
+    {
+        public string _conString { get; set; }
+        public void ExecuteCommand(string command)
+        {
+
+            using (var conn = new MySql.Data.MySqlClient.MySqlConnection(_conString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = command;
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
+
+
+        public IDataReader ExecuteReader(string command)
+        {
+            using (var connection = new SqlConnection(_conString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(command, connection);
+                var reader = cmd.ExecuteReader();
+                connection.Close();
+                return reader;
+            }
         }
     }
-
-
-    public class OracleConnection : Connection
+    internal class PostgresConnection : IConnection
     {
-        public new void ExecuteCommand(string command)
+        public string _conString { get; set; }
+        public void ExecuteCommand(string command)
         {
-        }
-    }
 
-    public class SqlServerConnection : Connection
-    {
-        public new void ExecuteCommand(string command)
+            using (var conn = new Npgsql.NpgsqlConnection(_conString))
+            {
+                conn.Open();
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = command;
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
+
+
+        public IDataReader ExecuteReader(string command)
         {
-           using (var connection = new SqlConnection(_conString))
-           {
-               connection.Open();
-               var cmd = new SqlCommand(command,connection);
-               cmd.ExecuteNonQuery();
-           }
+            using (var connection = new Npgsql.NpgsqlConnection(_conString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                var reader = cmd.ExecuteReader();
+                connection.Close();
+                return reader;
+            }
         }
-    }
-
-
-    public class MySqlConnection : Connection
-    {
-        public new void ExecuteCommand(string command)
-        {}
-    }
-    public class PostgresConnection : Connection
-    {
-        public new void ExecuteCommand(string command)
-        {}
     }
 }

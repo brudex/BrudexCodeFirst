@@ -19,8 +19,8 @@ namespace Brudex.CodeFirst.Tests
         public void MigrationCountTest()
         {
             BrudexCodeFirst.ClearMigrations();
-            Dcf<Movie>.Migrate();
-            Dcf<Director>.Migrate();
+            Bcf<Movie>.Migrate();
+            Bcf<Director>.Migrate();
             int c = BrudexCodeFirst.GetMigrationCount();
             Assert.AreEqual(c, 2);
         }
@@ -29,8 +29,8 @@ namespace Brudex.CodeFirst.Tests
         public void MigrationSqlTest()
         {
             BrudexCodeFirst.ClearMigrations();
-            Dcf<Movie>.Migrate(true, false);
-            Dcf<Director>.Migrate(true,false);
+            Bcf<Movie>.Migrate(true, false);
+            Bcf<Director>.Migrate(true,false);
             string sql= BrudexCodeFirst.GetSqlQuery();
             Assert.AreEqual(sql, "");
         }

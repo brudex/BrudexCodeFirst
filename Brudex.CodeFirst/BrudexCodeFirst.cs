@@ -27,7 +27,7 @@ namespace Brudex.CodeFirst
             {
                 _conString = connectionString;
             }
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             var cf = new ConnectionFactory(dbEngine,_conString);
              
@@ -39,14 +39,16 @@ namespace Brudex.CodeFirst
                         {
                             case MigrationOptions.RecreateEveryTime:
                                  sb.Append(migration.DropExistingTable());
-                                 sb.Append(migration.GetCreateSql());
-                                
+                                var sql = migration.GetCreateSql();
+                                sb.Append(sql);
+                                sb.AppendLine(migration.GetSeedSql());                              
                                 break; 
                             case MigrationOptions.RecreateOnlyChangedModels:
                                 if (migration.ModelChanged(cf))
                                 {
                                     sb.Append(migration.DropExistingTable());
                                     sb.Append(migration.GetCreateSql());
+                                    sb.AppendLine(migration.GetSeedSql()); 
                                 }                                  
                                 break;
                             case MigrationOptions.AlterOnModelChanges:
@@ -54,6 +56,7 @@ namespace Brudex.CodeFirst
                                 if (migration.IsFirstMigration(cf))
                                 {
                                     sb.Append(migration.GetCreateSql());
+                                    sb.AppendLine(migration.GetSeedSql()); 
                                 }
                                 else
                                 {
@@ -72,12 +75,15 @@ namespace Brudex.CodeFirst
                         
                         sb.Append("; " + Environment.NewLine);
                     }
-                };
 
-           
+                    cf.ExecuteCommand(sb.ToString());
+                };
+             
             if (options == MigrationOptions.MigrateOnce)
             {
-                if (cf.IsFirstMigrations())
+                var tableNames = new List<string>();
+                migrations.ForEach(t => tableNames.Add(t.GetTableName()));
+                if (cf.IsFirstMigrations(tableNames))
                 {
                     doMigrations();
                 }
@@ -91,9 +97,7 @@ namespace Brudex.CodeFirst
             {
                 doMigrations();
             }
-            
-            
-
+             
         } 
         
         public static void RunMigrations()
@@ -109,7 +113,7 @@ namespace Brudex.CodeFirst
             foreach (var migration in migrations)
             {
                 sb.Append(migration.GetCreateSql());
-                sb.Append(Environment.NewLine + " GO " + Environment.NewLine);
+                sb.Append(Environment.NewLine + " ; " + Environment.NewLine);
             }
             return sb.ToString();
         }

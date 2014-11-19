@@ -44,7 +44,7 @@ namespace Brudex.CodeFirst.Tests
         {
             BaseMigrationActions<Movie> m = new BaseMigrationActions<Movie>("Movie", false);
             m.SetPrimaryKey(f=>f.Id,false);
-            Assert.AreEqual(m.IdField, "Key");   
+            Assert.AreEqual(m.IdField, "Id");   
             Assert.AreEqual(m.AutoIncrementId,false);
         }
 

@@ -6,15 +6,17 @@ namespace Brudex.CodeFirst
 {
     public  class SeedMaker
     {
-        public static Dictionary<string, EntityVariable> CreateSeed(List<ColumnMap> columns, bool autoIncrementId, string idField)
+        public static Dictionary<string, EntityVariable> CreateSeed(List<ColumnMap> columns)
         {
             var dict = new Dictionary<string, EntityVariable>();
             foreach (var column in columns)
             {
                 EntityVariable ev=new EntityVariable();
                 ev.FieldName = column.ColumnName;
+                
                 ev.FieldType = column.FieldType;
                 ev.FieldValue = RandomFactory.GetRandomValue(column.ColumnName, column.FieldType);
+                  
                 dict[ev.FieldName] = ev;
             }
 
