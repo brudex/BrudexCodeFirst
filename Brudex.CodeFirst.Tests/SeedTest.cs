@@ -37,5 +37,7 @@ namespace Dapper.CodeFirst.Tests
 
         }
 
+
+        ///Final test Migration Types especially alter
     }
 }
