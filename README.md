@@ -7,7 +7,7 @@ I created Code first migrations to allow me to still use my micro orms and not h
 Lets cut to the chase.
 The Nuget Command: 
 
-###[COMMAND FOR NUGET]
+###Install-Package Brudex.CodeFirst.dll
 
 The package has several migration options you can work in.
 - Migrate Once - Allows you to migrate you db only the first time the application runs. Subsequent application runs does not trigger migrations. Best for production environment where Database is to be migrated once.
